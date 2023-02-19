@@ -131,51 +131,56 @@ var
   K, Z: Integer;
   Gen: Char;
 begin
-  Randomize;
   // Kaliteli bir gen ile mutasyon yapıyoruz.
+  Randomize;
   K := RandomRange(1, cGenUzunlugu);
   Birey.Genler[K] := AnsiChar(RandomKaliteliGen);
 
   // Sıradan bir gen ile mutasyon yapıyoruz.
+  Randomize;
   K := RandomRange(1, cGenUzunlugu);
-  Birey.Genler[K] := AnsiChar(RandomKaliteliGen); // veya (RandomGen);
+  Birey.Genler[K] := AnsiChar(RandomGen);
 end;
 
+procedure Print(const aBirey: TBirey; const aString: String = '');
+begin
+  Writeln(aBirey.Genler + ' - ' + aBirey.KaliteDuzeyi.ToString + ' ' + aString);
+end;
+
+// Genetik Algoritmamızın işleyişini gösteren ana kısım
 begin
   try
-    Writeln('Uygunluk Kuralı = "İçinde q,w,x,y genleri barındıran bireylerin kalitesi yüksektir."');
+    Writeln('Uygunluk Kuralı = "İçinde q,w,x,y ve z genleri barındıran bireylerin kalitesi yüksektir."');
 
+    Writeln('');
     Writeln('Popülasyon;'); // = nesil
     PopulasyonuOlustur;
-    for I := 0 to cNesilSayisi - 1 do Writeln(Nesiller[I].Genler + ' - ' + Nesiller[I].KaliteDuzeyi.ToString);
+    for I := 0 to cNesilSayisi - 1 do Print(Nesiller[I], ' ( ' + (I + 1).ToString + ' nesil )');
 
-    PopulasyonuDegerlendir;
     Writeln('');
     Writeln('Uygunluk Değerlendirmesi;');
-    for I := 0 to cNesilSayisi - 1 do Writeln(Nesiller[I].Genler + ' - ' + Nesiller[I].KaliteDuzeyi.ToString);
+    PopulasyonuDegerlendir;
+    for I := 0 to cNesilSayisi - 1 do Print(Nesiller[I], ' ( ' + (I + 1).ToString + ' nesil kalite seviyesi )');
 
+    Writeln('');
+    Writeln('En kaliteli birey;');
     EnIyiBireySec;
-    Writeln('');
-    Writeln('En iyi bireyin genleri: ');
-    Writeln(EnIyiBirey.Genler + ' - ' + EnIyiBirey.KaliteDuzeyi.ToString);
+    Print(EnIyiBirey, '( En iyi bireyin genleri )');
 
+    Writeln('');
+    Writeln('Mutasyonlar;');
     Mutant := EnIyiBirey; // bu en iyi bireyden türetilmiş ve birazdan mutasyona uğrayacak olan başka bir birey...
-
-    Writeln('');
-    Writeln('En iyi bireyi Mutasyona uğratıyoruz. Kromozomun Mutasyonlu halinde (sadece bir ~ iki) genin farklı olduğunu görmelisin) ');
-    for L := 1 to 3 do begin
+    for L := 1 to 5 do begin
         Mutasyon(Mutant);
         BireyiDegerlendir(Mutant);
-        Writeln(Mutant.Genler + ' - ' + Mutant.KaliteDuzeyi.ToString + ' ( ' + L.ToString + '. mutasyon )');
+        Print(Mutant, '( ' + L.ToString + '. mutasyon )');
     end;
 
     Writeln('');
-    Writeln('Mutant ile En iyi bireyi çaprazlıyoruz ve bu sayede en kaliteli genler her iki bireyde de baskın hale geliyor.');
-
+    Writeln('Çaprazlama;');
     MelezBirey := Caprazla(Mutant, EnIyiBirey);
-
     BireyiDegerlendir(MelezBirey);
-    Writeln(MelezBirey.Genler + ' - ' + MelezBirey.KaliteDuzeyi.ToString + ' ( Çaprazlanmış Melez Birey )');
+    Print(MelezBirey, '( Çaprazlanmış Melez Birey )');
 
   finally
     Readln;
