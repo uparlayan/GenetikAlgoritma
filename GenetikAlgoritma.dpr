@@ -10,12 +10,14 @@ uses
   ;
 
 const
-  cNesilSayisi = 10;
-  cGenUzunlugu = 25;
+  cNesilSayisi    = 10;
+  cGenUzunlugu    = 25;
+  cKaliteliGenler : set of char = ['V','W','X','Y','Z'];
+
 
 type
   TBirey = record
-    Genler      : String[cGenUzunlugu];                 //  Alfanümerik harflerden oluşan gen dizisidir. Yani birden çok geni içerdiği için aslında bu bir Kromozom'dur.
+    Genler      : String[cGenUzunlugu];                 //  Alfanümerik harflerden oluşan gen dizisidir. Yani birden çok geni içerdiği için yani aslında bu bir Kromozom'dur.
     KaliteDuzeyi: Integer;                              //  Bu uygunluk değerlendirmesi sonucu ortaya çıkan bir puan. En kaliteli genlere sahip olanı bununla bulacağız.
   end;
 
@@ -32,16 +34,16 @@ var
 function RandomGen: Char;
 begin
   Randomize;
-  Result := Chr( RandomRange(Ord('A'), Ord('Z') ) );
+  Result := Chr( RandomRange(Ord('A'), Ord('Z') ) ); // Bu, kaliteli genleri de içeren ana gen havuzudur.
 end;
 
 /// <summary>
-///  Kaliteli genler üretir.
+///  Sadece kaliteli genler üretir.
 /// </summary>
 function RandomKaliteliGen: Char;
 begin
   Randomize;
-  Result := Chr( RandomRange(ord('Q'), Ord('Z') ) );
+  Result := Chr( RandomRange(ord('V'), Ord('Z') ) ); // Bunlar tüm genler içindeki en kaliteli olanlardır.
 end;
 
 /// <summary>
@@ -51,9 +53,9 @@ procedure PopulasyonuOlustur;
 begin
   Randomize;
   for I := 0 to cNesilSayisi - 1 do begin
-      Nesiller[I].Genler := '';
-      for J := 0 to cGenUzunlugu - 1 do begin
-          Nesiller[I].Genler := Nesiller[I].Genler + RandomGen; // Sadece harfleri içerir.
+      Nesiller[I].Genler := StringOfChar(' ', cGenUzunlugu);
+      for J := 1 to cGenUzunlugu do begin
+          Nesiller[I].Genler[J] := AnsiChar(RandomGen);
       end;
   end;
 end;
@@ -65,7 +67,9 @@ procedure BireyiDegerlendir(var aBirey: TBirey);
 begin
   aBirey.KaliteDuzeyi := 0;
   for J := 1 to cGenUzunlugu do begin
-      if aBirey.Genler[J] IN ['Q','W','X','Y','Z'] then Inc(aBirey.KaliteDuzeyi); // bu genleri kaliteli olarak değerlendiriyoruz ve buna göre uygunluk puanını artırıyoruz.
+      if aBirey.Genler[J] IN cKaliteliGenler then begin
+          aBirey.KaliteDuzeyi := aBirey.KaliteDuzeyi + 1; // bu genleri kaliteli olarak değerlendiriyoruz ve buna göre uygunluk puanını artırıyoruz.
+      end;
   end;
 end;
 
@@ -83,13 +87,13 @@ end;
 /// </summary>
 procedure EnIyiBireySec;
 var
-  EnIyiUygunluk : Integer;
+  MaxKalite : Integer;
 begin
-  EnIyiUygunluk := 0;
+  MaxKalite := 0;
   for I := 0 to cNesilSayisi - 1 do begin
-      if (Nesiller[I].KaliteDuzeyi > EnIyiUygunluk) then begin
-          EnIyiUygunluk := Nesiller[I].KaliteDuzeyi;
-          EnIyiBirey    := Nesiller[I];
+      if (Nesiller[I].KaliteDuzeyi > MaxKalite) then begin
+          MaxKalite   := Nesiller[I].KaliteDuzeyi;
+          EnIyiBirey  := Nesiller[I];
       end;
   end;
 end;
@@ -107,10 +111,8 @@ begin
   Result.Genler := StringOfChar(' ', cGenUzunlugu);
   Result.KaliteDuzeyi := 0;
   for J := 1 to cGenUzunlugu do begin
-      // Annenin genleri kaliteli ise onu al
-      if (aAnne.Genler[J] IN ['Q','W','X','Y','Z']) then Result.Genler[J] := aAnne.Genler[J] else
-      // Babanın genleri kaliteli ise onu al
-      if (aBaba.Genler[J] IN ['Q','W','X','Y','Z']) then Result.Genler[J] := aBaba.Genler[J] else
+      if (aAnne.Genler[J] IN cKaliteliGenler) then Result.Genler[J] := aAnne.Genler[J] else       // Annenin genleri kaliteli ise onu al
+      if (aBaba.Genler[J] IN cKaliteliGenler) then Result.Genler[J] := aBaba.Genler[J] else       // Babanın genleri kaliteli ise onu al
       begin
           // İkisi de kaliteli gen değil ise doğa senin adına karar versin.
           //Randomize;
@@ -150,7 +152,7 @@ end;
 // Genetik Algoritmamızın işleyişini gösteren ana kısım
 begin
   try
-    Writeln('Uygunluk Kuralı = "İçinde q,w,x,y ve z genleri barındıran bireylerin kalitesi yüksektir."');
+    Writeln('Uygunluk Kuralı = "İçinde V,W,X,Y ve Z genlerini barındıran bireylerin kalitesi yüksektir."');
 
     Writeln('');
     Writeln('Popülasyon;'); // = nesil
