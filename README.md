@@ -1,3 +1,8 @@
 # GenetikAlgoritma
-![image](https://user-images.githubusercontent.com/24311198/219975766-4013467c-3358-4afa-87a4-b2f961c0bcb6.png)
+Genetik Algoritmalar mühendislik, ekonomi biyoloji gibi çeşitli alanlarda doğadaki doğal seçilim, mutasyon ve çaprazlama gibi evrimsel mekanikleri taklit ederek mevcut çözümlerin en iyisini tespit etmeye yarayan bir programlama tekniğidir.
+
+Bu algoritma, bir sorunu çözmek için birden çok çözümün yer aldığı durumlarda en iyi çözümün hangisi olduğunu bulmaya veya mevcut çözümlerin en iyi ne şekilde bir araya getirilirse optimum seviyeye ulaşılabileceğini tespit etmeye yarar. Bunun için eldeki çözümleri bir küme olarak ele alır ve yukarıda saydığım gibi mutasyon, çaprazlama ve / veya doğal seçilim gibi teknikleri uygular ve sonuçta bir sorunun çözümü için birden çok çözüm önerisi oluşur. Bu oluşan çözüm önerileri kümesindeki her bir elemana ise "nesil" deriz. Bu noktada algoritmanın temel amacı işte bu nesiller içerisinden en iyi çözümü mümkün olan en kısa sürede tespit etmektir.
+
+Bunu yaparken çözüm nesilleri içindeki her bir aday çözümün bir dizi özelliği (tabiri caiz ise "gen"leri ) üzerinde işlemler yapılır. Bu işlemler sonucunda her bir aday çözüm için "fitness" dediğimiz ağırlık veya kalite ölçütü olarak da düşünülebilecek bir seviye ölçümü yapılır. Bu sayede nesiller arasında genetik operasyonlar uygulanır. Nedir bu genetik operasyonlar diye soracak olursanız bunlara örnek olarak mutasyon (rastgele değişiklikler yaparak çözümün çeşitliliğini arttırma), çaprazlama (çözümleri birleştirerek yeni adaylar üretme) ve seçim (en uygun adayları seçme) gibi işlemler örnek verilebilir.
+
 ![image](https://user-images.githubusercontent.com/24311198/219976195-cb68a150-ee0c-46cb-9281-bcd00bd1322f.png)
