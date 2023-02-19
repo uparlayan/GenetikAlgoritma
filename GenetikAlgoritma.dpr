@@ -12,12 +12,12 @@ uses
 const
   cNesilSayisi    = 10;
   cGenUzunlugu    = 25;
+  cMutasyonSayisi = 10;
   cKaliteliGenler : set of char = ['V','W','X','Y','Z'];
-
 
 type
   TBirey = record
-    Genler      : String[cGenUzunlugu];                 //  Alfanümerik harflerden oluşan gen dizisidir. Yani birden çok geni içerdiği için yani aslında bu bir Kromozom'dur.
+    Genler      : String[cGenUzunlugu];                 //  Alfanümerik harflerden oluşan gen dizisidir. Yani birden çok geni içerdiği için bu aslında bu bir Kromozom'dur.
     KaliteDuzeyi: Integer;                              //  Bu uygunluk değerlendirmesi sonucu ortaya çıkan bir puan. En kaliteli genlere sahip olanı bununla bulacağız.
   end;
 
@@ -27,6 +27,22 @@ var
   Mutant      : TBirey;                                 //  Bu, en iyi bireyin değişime uğramış olan halini ifade eder.
   MelezBirey  : TBirey;                                 //  Bu ise en iyi birey ile mutasyona uğramış olan bireyin birleşmesinden elde edilir.
   I, J, L     : Integer;                                //  İteratörler, döngüler için, her yerde birdaha birdaha tanımlamamak için buraya ekledim.
+
+/// <summary>
+///  Bellekte Genlere yer açmak için kullanıyoruz. Bağlamsal açıdan konu ile alakası yok, sadece yardımcı bir metod.
+/// </summary>
+function BosKromozom: String;
+begin
+  Result := StringOfChar(' ', cGenUzunlugu);
+end;
+
+/// <summary>
+///  Kodu kısaltmak adına yardımcı bir metod, konu bağlamı ile alakası yok.
+/// </summary>
+procedure Print(const aBirey: TBirey; const aString: String = '');
+begin
+  WriteLn(Format('%s - %d %s', [aBirey.Genler, aBirey.KaliteDuzeyi, aString.Trim]));
+end;
 
 /// <summary>
 ///  Sıradan genler üretir.
@@ -53,7 +69,7 @@ procedure PopulasyonuOlustur;
 begin
   Randomize;
   for I := 0 to cNesilSayisi - 1 do begin
-      Nesiller[I].Genler := StringOfChar(' ', cGenUzunlugu);
+      Nesiller[I].Genler := BosKromozom; // StringOfChar(' ', cGenUzunlugu);
       for J := 1 to cGenUzunlugu do begin
           Nesiller[I].Genler[J] := AnsiChar(RandomGen);
       end;
@@ -101,22 +117,23 @@ end;
 /// <summary>
 ///  Burada A ve B adlı iki tane ebeveyni birbiriyle çaprazlayıp genlerini birbirleriyle karıştırıyoruz
 ///  ve karşımıza çaprazlama sonucu melez bir birey çıkıyor.
+///  Bunu yaparken her iki bireyde de en kaliteli genleri ilk önce seçmeyi tercih ediyoruz.
+///  Devamında eğer her iki bireyin eşleşen genleri de kaliteli türden değil ise her döngüde bir anneden sonraki döngüde ise bir babadan gen alıyoruz.
+///  Bu işlem bizim çaprazlama işlemimiz olmuş oluyor.
 /// </summary>
 function Caprazla(const aAnne, aBaba: TBirey): TBirey;
 var
   DogalSecilim  : Integer;
   Tmp           : TBirey;
 begin
-  //Result := aAnne;
-  Result.Genler := StringOfChar(' ', cGenUzunlugu);
+  Result.Genler := BosKromozom; // StringOfChar(' ', cGenUzunlugu);
   Result.KaliteDuzeyi := 0;
   for J := 1 to cGenUzunlugu do begin
-      if (aAnne.Genler[J] IN cKaliteliGenler) then Result.Genler[J] := aAnne.Genler[J] else       // Annenin genleri kaliteli ise onu al
-      if (aBaba.Genler[J] IN cKaliteliGenler) then Result.Genler[J] := aBaba.Genler[J] else       // Babanın genleri kaliteli ise onu al
+      if (aAnne.Genler[J] IN cKaliteliGenler) then Result.Genler[J] := aAnne.Genler[J] else // Annenin genleri kaliteli ise onu al
+      if (aBaba.Genler[J] IN cKaliteliGenler) then Result.Genler[J] := aBaba.Genler[J] else // Babanın genleri kaliteli ise onu al
       begin
           // İkisi de kaliteli gen değil ise doğa senin adına karar versin.
-          //Randomize;
-          DogalSecilim := J Mod 2;// RandomRange(0, 1);
+          DogalSecilim := J Mod 2;
           case DogalSecilim of
             0: Result.Genler[J] := aAnne.Genler[J];
             1: Result.Genler[J] := aBaba.Genler[J];
@@ -144,11 +161,6 @@ begin
   Birey.Genler[K] := AnsiChar(RandomGen);
 end;
 
-procedure Print(const aBirey: TBirey; const aString: String = '');
-begin
-  Writeln(aBirey.Genler + ' - ' + aBirey.KaliteDuzeyi.ToString + ' ' + aString);
-end;
-
 // Genetik Algoritmamızın işleyişini gösteren ana kısım
 begin
   try
@@ -157,12 +169,12 @@ begin
     Writeln('');
     Writeln('Popülasyon;'); // = nesil
     PopulasyonuOlustur;
-    for I := 0 to cNesilSayisi - 1 do Print(Nesiller[I], ' ( ' + (I + 1).ToString + ' nesil )');
+    for I := 0 to cNesilSayisi - 1 do Print(Nesiller[I], ' ( ' + (I + 1).ToString + ' neslin kromozomu )');
 
     Writeln('');
     Writeln('Uygunluk Değerlendirmesi;');
     PopulasyonuDegerlendir;
-    for I := 0 to cNesilSayisi - 1 do Print(Nesiller[I], ' ( ' + (I + 1).ToString + ' nesil kalite seviyesi )');
+    for I := 0 to cNesilSayisi - 1 do Print(Nesiller[I], ' ( ' + (I + 1).ToString + ' neslin gen bazındaki kalite seviyesi )');
 
     Writeln('');
     Writeln('En kaliteli birey;');
@@ -172,7 +184,7 @@ begin
     Writeln('');
     Writeln('Mutasyonlar;');
     Mutant := EnIyiBirey; // bu en iyi bireyden türetilmiş ve birazdan mutasyona uğrayacak olan başka bir birey...
-    for L := 1 to 5 do begin
+    for L := 1 to cMutasyonSayisi do begin
         Mutasyon(Mutant);
         BireyiDegerlendir(Mutant);
         Print(Mutant, '( ' + L.ToString + '. mutasyon )');
