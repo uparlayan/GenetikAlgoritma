@@ -1,2 +1,2 @@
 # GenetikAlgoritma
-![image](https://user-images.githubusercontent.com/24311198/219975714-11be7231-9343-493b-b6bd-3f0057d52b65.png)
+![image](https://user-images.githubusercontent.com/24311198/219975766-4013467c-3358-4afa-87a4-b2f961c0bcb6.png)
